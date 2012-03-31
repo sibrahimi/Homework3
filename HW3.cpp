@@ -25,7 +25,6 @@ int main()
 	vector<Company> CompanyVector;
 //start reading in text from Company file
 	ifstream infile;
-	ofstream fout;
 	infile.open("company.txt");
 	while (!infile.eof())
 	{
@@ -36,6 +35,7 @@ int main()
 		CompanyVector.push_back(temp);//put company object into CompanyVector
 	}//end while
 	infile.close();
+//	ofstream fout;
 //	fout.open("out.dat");
 //	fout.flush();
 //	fout.close();
