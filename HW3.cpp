@@ -21,18 +21,18 @@ ostream& operator << (ostream& out, const vector<Company>& vec)
 }//end overload << vector<Company>
 int main()
 {
-//	list<Employee> Unemployed;
+	list<Employee> Unemployed;
 	vector<Company> CompanyVector;
-	//start reading in text from Company file
+//start reading in text from Company file
 	ifstream infile;
-//	ofstream fout;
+	ofstream fout;
 	infile.open("company.txt");
 	while (!infile.eof())
 	{
 		string NewCompanyName;
 		infile >> NewCompanyName; //read in the company name
 		Company temp(NewCompanyName);//create company object
-//		cout << temp.getCompanyName();
+		cout << temp.getCompanyName();
 		CompanyVector.push_back(temp);//put company object into CompanyVector
 	}//end while
 	infile.close();
@@ -43,7 +43,7 @@ int main()
 //	{
 //		cout << CompanyVector[i].getCompanyName();
 //	}
-//	cout << CompanyVector;
+	cout << CompanyVector;
 }
 /*
 PROGRAM REQUIREMENTS
