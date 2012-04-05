@@ -16,4 +16,5 @@ void setCompanyName(string NewCompanyName); //setter
 void setNewEmployee(Employee NewEmployee); //setter
 }; //end class Company------------------------------------------------
 ostream& operator << (ostream& out, const Company& cmp);
+ostream& operator << (ostream& out, Employee& emp);
 istream& operator >> (istream& in, const Company& cmp);

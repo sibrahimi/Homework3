@@ -2,11 +2,13 @@
 //bss5h4
 //CS201 MWF Spatz
 #include "Company.h"
+#include <iterator>
+using namespace std;
+Company::Company(string NewCompanyName):CompanyName(NewCompanyName){}; //constructor
 void Company::setCompanyName(string NewCompanyName)
 	{CompanyName = NewCompanyName;} //setter
 void Company::setNewEmployee(Employee NewEmployee)
 	{getEmployees().push_back(NewEmployee);} //setter
-Company::Company(string NewCompanyName):CompanyName(NewCompanyName){}; //constructor
 ostream& operator << (ostream& out, const vector<Company>& vec)
 {
 	for (unsigned i=0;i<vec.size();i++)
@@ -15,6 +17,14 @@ ostream& operator << (ostream& out, const vector<Company>& vec)
 	}//end for
 	return out;
 }//end overload << vector<Company>
+ostream& operator << (ostream& out, list<Employee>& lst)
+{
+	for (list<Employee>::iterator l = lst.begin();l!=lst.end();++l)
+	{
+		out << *l << endl;
+	}//end for
+	return out;
+}//end overload << list<Employee>
 int main()
 {
 	list<Employee> Unemployed;
@@ -33,7 +43,7 @@ int main()
 	infile.close();
 	cout << CompanyVector;
 //start reading in text from trans_file.dat
-	ifstream infile;
+//	ifstream infile; //not needed, "infile" still exists.
 	infile.open("trans_file.dat");
 	while (!infile.eof())
 	{
@@ -43,52 +53,60 @@ int main()
 		infile >> TransCommand >> TransEmployee >> TransCompany; //read in the Command, Employee, CompanyName
 		switch (TransCommand) 
 		{
-		case "J": //JOIN J <Person> <Company>
+		case 'J': //JOIN J <Person> <Company>
 		//search for whether or not the employee object already exists
 		//add employee to new company
-			for (unsigned i=0;i<EmployeeVector.size();++i)
+			for (unsigned i=0;i<CompanyVector.size();++i)
 			{
-				if (EmployeeVector[i].EmployeeName == TransEmployee)
-				{ //if the employee already exists, must currently be unemployed, else "C" for CHANGE would be used
-					for (unsigned i=0;i<CompanyVector.size();++i)
+				if (CompanyVector[i].getCompanyName() == TransCompany)
+				{ //Found the correct Company object to enroll the Employee
+					for (unsigned j=0;j<EmployeeVector.size();++j)
 					{
-						if (CompanyVector[i].getCompanyName() == TransCompany)
-						{ //Found the correct Company object to enroll the Employee
-							CompanyVector[i].setNewEmployee(EmployeeVector[i]); //add the employee to the company payroll
+						if (EmployeeVector[j].EmployeeName == TransEmployee)
+						{ //if the employee already exists, must currently be unemployed, else "C" for CHANGE would be used
+							CompanyVector[i].setNewEmployee(EmployeeVector[j]); //add the employee to the company payroll
+//TODO: FIND THE EMPLOYEE IN THE UNEMPLOYED LIST AND REMOVE THEM!!!!!!!!!!!!!!!!!!!!!!!!!
 						}//end if
+						else //if the employee object doesn't currently exist, it needs to be created and then added.
+						{
+							Employee temp; //creates new employee object
+							temp.EmployeeName = TransEmployee; //sets their name
+							EmployeeVector.push_back(temp); //adds employee to the EmployeeVector
+							CompanyVector[j].setNewEmployee(temp); //add the new employee object to the company payroll
+						}//end else
 					}//end for
 				}//end if
-				else //if the employee object doesn't currently exist, it needs to be created and then added.
-				{
-					Employee temp; //creates new employee object
-					temp.EmployeeName = TransEmployee; //sets their name
-					EmployeeVector.push_back(temp); //adds employee to the EmployeeVector
-					for (unsigned i=0;i<CompanyVector.size();++i)
-					{
-						if (CompanyVector[i].getCompanyName() == TransCompany)
-						{ //Found the correct Company object to enroll the Employee
-							CompanyVector[i].setNewEmployee(temp); //add the new employee object to the company payroll
-						}//end if
-					}//end for
-			} //end for
+			}//end CASE J for loop
 			break;
-		case "Q": //QUIT Q <Person>
+		case 'Q': //QUIT Q <Person>
+			//remove employee from company list
+			//add employee to unemployed list
 			break;
-		case "C": //CHANGE C <Person> <Company>
+		case 'C': //CHANGE C <Person> <Company>
 			//add employee to new company
 			//figure out where that employee was already employed
 			//set Employee.LastCompany
 			//delete employee from old company
 			break;
-		case "S":
+		case 'S': //SALARY IS PAID
+			//For each company in company vector,
+			//for each employee in Company.Employees,
+			//increase Employee.TotalSalary by Rank*$1000
+			//Pay $50 to everyone on Unemployed list
 			break;
-		case "E":
+		case 'E': //EMPLOYEES E <Company>
+			//prints a header with the company name,
+			//then the current list of employees for the specified <Company>.
+			//The employees must be printed in order of rank; either top to bottom or bottom to top is appropriate.
+			//Also print the employee's current salary and salary-to-date.
 			break;
-		case "U":
+		case 'U': //UNEMPLOYED LIST
+			//the list of unemployed people should be printed.
+			//Include the name of the last company the unemployed person worked for.
 			break;
-		case "D":
+		case 'D': //DUMP Header, then E, then Header, then U
 			break;
-		case "F": //FINISH
+		case 'F': //FINISH "prints the message "End of Program"
 			break;
 		}//end switch Command
 	}//end while
@@ -104,7 +122,6 @@ PROGRAM REQUIREMENTS
 Your program must define the following classes:
     A company class
     Minimal Operations:
-        add an employee to the list of employees for the company
         remove an employee who quits the company
         calculate the employees' salary
         find an employee
