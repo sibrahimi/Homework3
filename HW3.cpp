@@ -29,13 +29,15 @@ ostream& operator << (ostream& out, Employee& emp)
 	out << emp.EmployeeName << emp.TotalSalary << emp.LastCompany << emp.CompanyRank << endl;
 	return out;
 }
-Company FindCompany(vector<Company> &CompanyVector, string CompanyToFind)
+Company FindCompany(vector<Company> CompanyVector, string CompanyToFind)
 {
 	for (unsigned i=0;i<CompanyVector.size();++i)
 	{if (CompanyVector[i].getCompanyName() == CompanyToFind)
 	{return CompanyVector[i];}}//end if //end for
+	//causes a warning, since if the company name isn't found, nothing will be returned.
+	//in our setting, this will never happen.
 }//end FindCompany
-Employee FindEmployee(list<Employee> &Employees, string EmployeeToFind)
+Employee FindEmployee(list<Employee> Employees, string EmployeeToFind)
 {
 	for (list<Employee>::iterator l = Employees.begin();l!=Employees.end();++l)
 	{if (l->EmployeeName == EmployeeToFind)
@@ -45,7 +47,7 @@ Employee FindEmployee(list<Employee> &Employees, string EmployeeToFind)
 	temp.EmployeeName = EmployeeToFind;
 	return temp;
 }//end FindEmployee in list
-Employee FindEmployee(vector<Employee> &Employees, string EmployeeToFind)
+Employee FindEmployee(vector<Employee> Employees, string EmployeeToFind)
 {
 	for (unsigned i=0;i<Employees.size();++i)
 	{if (Employees[i].EmployeeName == EmployeeToFind)
@@ -57,12 +59,13 @@ Employee FindEmployee(vector<Employee> &Employees, string EmployeeToFind)
 }//end FindEmployee in vector
 void RemoveEmployeeFromList(list<Employee> Container, string EmployeeToRemove)
 {
-	for (list<Employee>::iterator l = Container.begin();l!=Container.end();++l)
+	for (list<Employee>::iterator a = Container.begin();a!=Container.end();++a)
 	{
-		if (l->EmployeeName == EmployeeToRemove)
-		{Container.erase(l);} //REMOVES PERSON FROM LIST
+		if (a->EmployeeName == EmployeeToRemove)
+		{Container.erase(a);} //REMOVES EMPLOYEE FROM LIST
+		break;
 	}//end for
-}//end RemoveFromUnemployed
+}//end RemoveEmployeeFromList
 int main()
 {
 	list<Employee> Unemployed;
@@ -73,7 +76,8 @@ int main()
 	infile.open("company.txt");
 	ofstream fout;
 	fout.open("out.dat");
-	fout << "Loading company list...";
+	cout << "Loading company list..." << endl;
+	fout << "Loading company list..." << endl;
 	while (!infile.eof())
 	{
 		string NewCompanyName;
@@ -86,10 +90,10 @@ int main()
 	}//end while
 	infile.close();
 //finish reading in text from Company.txt
-	cout << CompanyVector; //delete me when finished testing///////////////////////////////////////
 //start reading in text from trans_file.dat
 	infile.open("trans_file.dat"); //opens a new file this time
-	fout << "Begin processing transactions...";
+	cout << "Begin processing transactions..." << endl;
+	fout << "Begin processing transactions..." << endl;
 	char TransCommand;
 	while (!infile.eof())
 	{
@@ -101,8 +105,8 @@ int main()
 		case 'J': //JOIN J <Person> <Company>
 		{
 			infile >> Trans1st >> Trans2nd;
-			cout << "JOIN" << Trans1st<< " to " << Trans2nd << endl;
-			fout << "JOIN" << Trans1st<< " to " << Trans2nd << endl;
+			cout << "JOIN " << Trans1st<< " to " << Trans2nd << endl;
+			fout << "JOIN " << Trans1st<< " to " << Trans2nd << endl;
 			Company c = FindCompany(CompanyVector, Trans2nd);//find the labeled company (Trans2nd)
 			Employee e = FindEmployee(EmployeeVector, Trans1st);//find/create the employee (Trans1st)
 			c.Employees.push_back(e); //add employee to new company
@@ -149,31 +153,34 @@ int main()
 		case 'C': //CHANGE C <Person> <Company>
 		{
 			infile >> Trans1st >> Trans2nd;
-			cout << "CHANGE" << Trans1st << " to " << Trans2nd << endl;
-			fout << "CHANGE" << Trans1st << " to " << Trans2nd << endl;
+			cout << "CHANGE " << Trans1st << " to " << Trans2nd << endl;
+			fout << "CHANGE " << Trans1st << " to " << Trans2nd << endl;
 //C is essentially a combination of Q followed by J, but without the Unemployment inbetween.
 //Employee quits his old job
 			Employee e = FindEmployee(EmployeeVector, Trans1st);
 			for (unsigned i=0;i<CompanyVector.size();++i)
 			{
-				cout << "Current Company Search: " << CompanyVector[i].getCompanyName();
+				cout << endl << "Current Company Search: " << CompanyVector[i].getCompanyName();
 				for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
 				{
 					if (l->EmployeeName == Trans1st)
-				{
-					l->LastCompany = CompanyVector[i].getCompanyName();
-					RemoveEmployeeFromList(CompanyVector[i].Employees, Trans1st);
-				}//end if
-				}//end for
-				cout << "end of iter l \n";
-				for (list<Employee>::iterator k = CompanyVector[i].Employees.begin();k!=CompanyVector[i].Employees.end();++k)
-				{
-					if (k->CompanyRank >= e.CompanyRank)
 					{
-					k->CompanyRank -= 1;
+						cout << " --Iter l found employee match";
+						l->LastCompany = CompanyVector[i].getCompanyName();
+						cout << " --Iter l setting last company.";
+						RemoveEmployeeFromList(CompanyVector[i].Employees, Trans1st);
+						cout << " --Iter l removing employee from Company";
+						for (list<Employee>::iterator k = CompanyVector[i].Employees.begin();k!=CompanyVector[i].Employees.end();++k)
+						{
+							cout << "Iter k created.";
+							if (k->CompanyRank >= e.CompanyRank)
+							{
+								k->CompanyRank -= 1;
+							}//end if
+						}//end for
+						cout << " end of iter k. ";
 					}//end if
 				}//end for
-				cout << "end of iter k \n";
 			}//end outer-most for (companyvector.size)
 //Employee Starts his new job
 			Company c = FindCompany(CompanyVector, Trans2nd);//find the labeled company (Trans2nd)
@@ -181,7 +188,7 @@ int main()
 			e.CompanyRank = 0; //Reset to 0, next for loop will increase this to the proper 1 while also increasing everyone above.
 			for (list<Employee>::iterator j = c.Employees.begin();j!=c.Employees.end();++j)
 			{j->CompanyRank += 1;}//end for
-			cout << "end of iter j \n";
+			cout << " end of iter j \n";
 			break;
 		} //end case C
 		case 'S': //SALARY IS PAID
