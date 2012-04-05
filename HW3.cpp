@@ -75,8 +75,11 @@ int main()
 	{
 		string NewCompanyName;
 		infile >> NewCompanyName; //read in the company name
-		Company temp(NewCompanyName);//create company object
-		CompanyVector.push_back(temp);//put company object into CompanyVector
+		if (NewCompanyName.length()>0) //avoids creating company objects out of empty lines
+		{
+			Company temp(NewCompanyName);//create company object
+			CompanyVector.push_back(temp);//put company object into CompanyVector
+		} //end if
 	}//end while
 	infile.close();
 //finish reading in text from Company.txt
@@ -103,6 +106,9 @@ int main()
 			e.CompanyRank = 0; //Reset to 0, next for loop will increase this to the proper 1 while also increasing everyone above.
 			for (list<Employee>::iterator l = c.Employees.begin();l!=c.Employees.end();++l)
 			{l->CompanyRank += 1;}//end for
+			for (unsigned i=0;i<CompanyVector.size();++i) //Update the company in the CompanyVector
+			{if (CompanyVector[i].getCompanyName() == Trans2nd)
+			{CompanyVector[i] = c;}}//end if //end for
 			break;
 		}//end CASE J
 		case 'Q': //QUIT Q <Person>
@@ -111,14 +117,17 @@ int main()
 			cout << Trans1st << " has quit their job." << endl;
 //remove employee from company list
 			Employee e = FindEmployee(EmployeeVector, Trans1st);
-			for (unsigned i=0;i<CompanyVector.size();++i)
+			cout << "PHASE 1, before entering first FOR loop" << endl;
+			for (unsigned i=0;i<CompanyVector.size();++i) //find the company the employee worked for
 			{
+				cout << "PHASE 2, looking for the employee in company named " << CompanyVector[i].getCompanyName()   << endl; //prints 7 times as appropriate,
 				for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
-				{
-					if (l->EmployeeName == Trans1st)
+				{ //check every employee of this company
+					cout << "PHASE 3, before IF statement" << endl;
+					if (l->EmployeeName == Trans1st) //if this company has the employee that is quitting
 					{
-						Employee e = FindEmployee(EmployeeVector,Trans1st);
-						e.LastCompany = CompanyVector[i].getCompanyName();
+						e.LastCompany = CompanyVector[i].getCompanyName(); //set their LastCompany, as they are now Unemployed.
+						cout << "FINAL PHASE. SETTING LAST COMPANY NOW~!~!~!~!~!~!~" << e.EmployeeName << e.LastCompany << endl;
 //						l->LastCompany = CompanyVector[i].getCompanyName();
 						RemoveEmployeeFromList(CompanyVector[i].Employees, Trans1st);
 					}//end if
@@ -155,8 +164,8 @@ int main()
 			Company c = FindCompany(CompanyVector, Trans2nd);//find the labeled company (Trans2nd)
 			c.Employees.push_back(e); //add employee to new company
 			e.CompanyRank = 0; //Reset to 0, next for loop will increase this to the proper 1 while also increasing everyone above.
-			for (list<Employee>::iterator l = c.Employees.begin();l!=c.Employees.end();++l)
-			{l->CompanyRank += 1;}//end for
+			for (list<Employee>::iterator k = c.Employees.begin();k!=c.Employees.end();++k)
+			{k->CompanyRank += 1;}//end for
 			break;
 		} //end case C
 		case 'S': //SALARY IS PAID
