@@ -7,6 +7,7 @@ using namespace std;
 Company::Company(string NewCompanyName):CompanyName(NewCompanyName){}; //constructor
 void Company::setCompanyName(string NewCompanyName)	{CompanyName = NewCompanyName;} //setter
 void Company::setNewEmployee(Employee NewEmployee)	{getEmployees().push_back(NewEmployee);} //setter
+void Company::removeEmployee(Employee ToBeRemoved) {;}
 ostream& operator << (ostream& out, const vector<Company>& vec)
 {
 	for (unsigned i=0;i<vec.size();i++)
@@ -25,9 +26,42 @@ ostream& operator << (ostream& out, list<Employee>& lst)
 }//end overload << list<Employee>
 ostream& operator << (ostream& out, Employee& emp)
 {
-	out << emp.EmployeeName << emp.TotalSalary << emp.CompanyRank << emp.LastCompany << endl;
+	//vector<string> Employ;
+	//Employ.push_back(emp.EmployeeName);
+	//Employ.push_back(emp.TotalSalary);
+	//Employ.push_back(emp.CompanyRank);
+	//Employ.push_back(emp.LastCompany);
+	out << emp.EmployeeName << emp.TotalSalary << emp.LastCompany << emp.CompanyRank << endl;
 	return out;
 }
+Company Company::FindCompany(vector<Company> CompanyVector, string CompanyToFind)
+{
+	for (unsigned i=0;i<CompanyVector.size();++i)
+	{
+		if (CompanyVector[i].getCompanyName() == CompanyToFind)
+			{return CompanyVector[i];}//end if
+	}//end for
+}//end FindCompany
+Employee Employee::FindEmployee(list<Employee> Employees, string EmployeeToFind)
+{
+	for (list<Employee>::iterator l = Employees.begin();l!=Employees.end();++l)
+	{
+		if (l->EmployeeName == EmployeeToFind)
+		{
+			return *l;
+		}
+	}//end for
+}//end FindEmployee in list
+Employee Employee::FindEmployee(vector<Employee> Employees, string EmployeeToFind)
+{
+	for (unsigned i=0;i<Employees.size();++i)
+	{
+		if (Employees[i].EmployeeName == EmployeeToFind)
+		{
+			return Employees[i];
+		}//end if
+	}//end for
+}//end FindEmployee in vector
 int main()
 {
 	list<Employee> Unemployed;
@@ -44,7 +78,9 @@ int main()
 		CompanyVector.push_back(temp);//put company object into CompanyVector
 	}//end while
 	infile.close();
-	cout << CompanyVector;
+
+	cout << CompanyVector; //delete me when finished testing///////////////////////////////////////
+
 //start reading in text from trans_file.dat
 	infile.open("trans_file.dat"); //opens a new file this time
 	while (!infile.eof())
@@ -69,22 +105,47 @@ int main()
 						if (EmployeeVector[j].EmployeeName == Trans1st)
 						{ //if the employee already exists, must currently be unemployed, else "C" for CHANGE would be used
 							CompanyVector[i].setNewEmployee(EmployeeVector[j]); //add the employee to the company payroll
-//TODO: FIND THE EMPLOYEE IN THE UNEMPLOYED LIST AND REMOVE THEM!!!!!!!!!!!!!!!!!!!!!!!!!
-						}//end if
+							for (list<Employee>::iterator l = Unemployed.begin();l!=Unemployed.end();++l)
+							{
+								if (l->EmployeeName == Trans1st)
+								{
+									Unemployed.erase(l); //REMOVES PERSON FROM UNEMPLOYED LIST
+								}//end if
+							}//end for
+						}//end if Employee Exists
 						else //if the employee object doesn't currently exist, it needs to be created and then added.
 						{
 							Employee temp; //creates new employee object
 							temp.EmployeeName = Trans1st; //sets their name
 							EmployeeVector.push_back(temp); //adds employee to the EmployeeVector
 							CompanyVector[j].setNewEmployee(temp); //add the new employee object to the company payroll
-						}//end else
-					}//end for
-				}//end if
-			}//end CASE J for loop
+						}//end else if Employee doesn't exist
+					}//end for EmployeeVector
+				}//end if CompanyName
+			}//end CASE J for CompanyVector
 			break;
 		case 'Q': //QUIT Q <Person>
-			//remove employee from company list
-			//add employee to unemployed list
+			//putback Trans2nd
+//remove employee from company list
+			for (unsigned i=0;i<CompanyVector.size();++i)
+			{
+				list<Employee> count = CompanyVector[i].getEmployees();
+				for (list<Employee>::iterator l = count.begin();l!=count.end();++l)
+				{
+					if (l->EmployeeName == Trans1st)
+					{
+
+					}//end if
+				}//end for
+			}//end for
+//add employee to unemployed list
+			for (unsigned j=0;j<EmployeeVector.size();++j)
+			{
+				if (EmployeeVector[j].EmployeeName == Trans1st)
+				{
+					Unemployed.push_back(EmployeeVector[j]);
+				}//end if
+			}//end for
 			break;
 		case 'C': //CHANGE C <Person> <Company>
 			//add employee to new company
@@ -93,34 +154,39 @@ int main()
 			//delete employee from old company
 			break;
 		case 'S': //SALARY IS PAID
+//			for (unsigned i=0;i<Trans2nd.size();++i) {cout << i; infile.putback(i);}
+			//putback Trans1st Trans2nd
 			//For each company in company vector,
 			//for each employee in Company.Employees,
 			//increase Employee.TotalSalary by Rank*$1000
-			/*Pay $50 to everyone on Unemployed list
+//Pay $50 to everyone on Unemployed list
 			for (list<Employee>::iterator l = Unemployed.begin();l!=Unemployed.end();++l)
 			{
-				*l.TotalSalary += 50;
+				l->TotalSalary += 50;
 			}
-			*/
 			break;
 		case 'E': //EMPLOYEES E <Company>
-			//prints a header with the company name,
+			//putback Trans2nd
+			//prints a header with the company name (Trans1st),
 			//then the current list of employees for the specified <Company>.
 			//The employees must be printed in order of rank; either top to bottom or bottom to top is appropriate.
 			//Also print the employee's current salary and salary-to-date.
 			break;
 		case 'U': //UNEMPLOYED LIST
+			//putback Trans1st Trans2nd
 			//the list of unemployed people should be printed.
 			//Include the name of the last company the unemployed person worked for.
 			break;
-		case 'D': //DUMP 
+		case 'D': //DUMP
+			//putback Trans1st Trans2nd
 			//Header, then E, then Header, then U
 			break;
 		case 'F': //FINISH 
-		//"prints the message "End of Program"
+			//putback Trans1st Trans2nd
+			//"prints the message "End of Program"
 			break;
 		}//end switch Command
-	}//end while
+	}//end while READING FILE
 	infile.close();
 //	ofstream fout;
 //	fout.open("out.dat");
@@ -128,6 +194,7 @@ int main()
 //	fout.close();
 	keep_window_open();
 }//end main
+
 /*
 PROGRAM REQUIREMENTS
 Your program must define the following classes:
