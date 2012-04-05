@@ -1,10 +1,7 @@
 //Ben Sipes
 //bss5h4
 //CS201 MWF Spatz
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <list>
+#include "../../std_lib_facilities.h"
 using namespace std;
 struct Employee
 {

@@ -2,15 +2,11 @@
 //bss5h4
 //CS201 MWF Spatz
 #include "Company.h"
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <list>
 void Company::setCompanyName(string NewCompanyName)
-	{CompanyName = NewCompanyName;}
+	{CompanyName = NewCompanyName;} //setter
 void Company::setNewEmployee(Employee NewEmployee)
-	{getEmployees().push_back(NewEmployee);}
-Company::Company(string NewCompanyName):CompanyName(NewCompanyName){};
+	{getEmployees().push_back(NewEmployee);} //setter
+Company::Company(string NewCompanyName):CompanyName(NewCompanyName){}; //constructor
 ostream& operator << (ostream& out, const vector<Company>& vec)
 {
 	for (unsigned i=0;i<vec.size();i++)
@@ -31,7 +27,6 @@ int main()
 		string NewCompanyName;
 		infile >> NewCompanyName; //read in the company name
 		Company temp(NewCompanyName);//create company object
-		cout << temp.getCompanyName();
 		CompanyVector.push_back(temp);//put company object into CompanyVector
 	}//end while
 	infile.close();
@@ -39,12 +34,9 @@ int main()
 //	fout.open("out.dat");
 //	fout.flush();
 //	fout.close();
-//	for (unsigned i=0; i<CompanyVector.size();++i)
-//	{
-//		cout << CompanyVector[i].getCompanyName();
-//	}
 	cout << CompanyVector;
-}
+	keep_window_open();
+}//end main
 /*
 PROGRAM REQUIREMENTS
 Your program must define the following classes:
