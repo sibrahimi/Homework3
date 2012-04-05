@@ -34,34 +34,46 @@ ostream& operator << (ostream& out, Employee& emp)
 	out << emp.EmployeeName << emp.TotalSalary << emp.LastCompany << emp.CompanyRank << endl;
 	return out;
 }
-Company Company::FindCompany(vector<Company> CompanyVector, string CompanyToFind)
+Company FindCompany(vector<Company> CompanyVector, string CompanyToFind)
 {
 	for (unsigned i=0;i<CompanyVector.size();++i)
 	{
 		if (CompanyVector[i].getCompanyName() == CompanyToFind)
-			{return CompanyVector[i];}//end if
+		{return CompanyVector[i];}//end if
 	}//end for
 }//end FindCompany
-Employee Employee::FindEmployee(list<Employee> Employees, string EmployeeToFind)
+Employee FindEmployee(list<Employee> Employees, string EmployeeToFind)
 {
 	for (list<Employee>::iterator l = Employees.begin();l!=Employees.end();++l)
 	{
 		if (l->EmployeeName == EmployeeToFind)
-		{
-			return *l;
-		}
+		{return *l;}//end if
 	}//end for
+//if the employee doesn't exist yet, make him, then return him
+	Employee temp;
+	temp.EmployeeName = EmployeeToFind;
+	return temp;
 }//end FindEmployee in list
-Employee Employee::FindEmployee(vector<Employee> Employees, string EmployeeToFind)
+Employee FindEmployee(vector<Employee> Employees, string EmployeeToFind)
 {
 	for (unsigned i=0;i<Employees.size();++i)
 	{
 		if (Employees[i].EmployeeName == EmployeeToFind)
-		{
-			return Employees[i];
-		}//end if
+		{return Employees[i];} //if the employee already exists, return him
 	}//end for
+//if the employee doesn't exist yet, make him, then return him
+	Employee temp;
+	temp.EmployeeName = EmployeeToFind;
+	return temp;
 }//end FindEmployee in vector
+void RemoveFromUnemployed(list<Employee> Unemployed, string EmployeeToRemove)
+{
+	for (list<Employee>::iterator l = Unemployed.begin();l!=Unemployed.end();++l)
+	{
+		if (l->EmployeeName == EmployeeToRemove)
+		{Unemployed.erase(l);} //REMOVES PERSON FROM UNEMPLOYED LIST
+	}//end for
+}//end RemoveFromUnemployed
 int main()
 {
 	list<Employee> Unemployed;
@@ -93,9 +105,15 @@ int main()
 		switch (TransCommand) 
 		{
 		case 'J': //JOIN J <Person> <Company>
+		{
 		//find the labeled company (Trans2nd)
 		//search for whether or not the employee (Trans1st) already exists
 		//add employee to new company
+			Company c = FindCompany(CompanyVector, Trans2nd);
+			Employee e = FindEmployee(EmployeeVector, Trans1st);
+			c.setNewEmployee(e);
+			RemoveFromUnemployed(Unemployed,Trans1st);
+/*
 			for (unsigned i=0;i<CompanyVector.size();++i)
 			{
 				if (CompanyVector[i].getCompanyName() == Trans2nd)
@@ -122,9 +140,12 @@ int main()
 						}//end else if Employee doesn't exist
 					}//end for EmployeeVector
 				}//end if CompanyName
-			}//end CASE J for CompanyVector
+			}//end for CompanyVector
+*/
 			break;
+		}//end CASE J
 		case 'Q': //QUIT Q <Person>
+		{
 			//putback Trans2nd
 //remove employee from company list
 			for (unsigned i=0;i<CompanyVector.size();++i)
@@ -147,7 +168,9 @@ int main()
 				}//end if
 			}//end for
 			break;
+		}//end case Q
 		case 'C': //CHANGE C <Person> <Company>
+		{
 			//add employee to new company
 			//figure out where that employee was already employed
 			//set Employee.LastCompany
@@ -165,26 +188,36 @@ int main()
 				l->TotalSalary += 50;
 			}
 			break;
+		}//end case C
 		case 'E': //EMPLOYEES E <Company>
+		{
 			//putback Trans2nd
 			//prints a header with the company name (Trans1st),
 			//then the current list of employees for the specified <Company>.
 			//The employees must be printed in order of rank; either top to bottom or bottom to top is appropriate.
 			//Also print the employee's current salary and salary-to-date.
 			break;
+		}//end case E
 		case 'U': //UNEMPLOYED LIST
+		{
 			//putback Trans1st Trans2nd
 			//the list of unemployed people should be printed.
 			//Include the name of the last company the unemployed person worked for.
 			break;
+		}//end case U
 		case 'D': //DUMP
+		{
 			//putback Trans1st Trans2nd
 			//Header, then E, then Header, then U
 			break;
+		}//end case D
 		case 'F': //FINISH 
+		{
 			//putback Trans1st Trans2nd
 			//"prints the message "End of Program"
+			cout << endl << "END OF PROGRAM";
 			break;
+		}//end case F
 		}//end switch Command
 	}//end while READING FILE
 	infile.close();
@@ -194,7 +227,6 @@ int main()
 //	fout.close();
 	keep_window_open();
 }//end main
-
 /*
 PROGRAM REQUIREMENTS
 Your program must define the following classes:

@@ -11,11 +11,10 @@ private:
 public:
 	Company(string NewCompanyName); //default constructor
 	string getCompanyName() const {return CompanyName;} //getter
-	list<Employee> getEmployees() const {return Employees;} //getter
+	list<Employee> getEmployees() {return Employees;} //getter
 void setCompanyName(string NewCompanyName); //setter
 void setNewEmployee(Employee NewEmployee); //setter
 void removeEmployee(Employee ToBeRemoved); //remover
-Company FindCompany(vector<Company> CompanyVector, string CompanyToFind); //finder
 }; //end class Company------------------------------------------------
 ostream& operator << (ostream& out, const Company& cmp);
 ostream& operator << (ostream& out, Employee& emp);
