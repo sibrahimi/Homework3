@@ -83,17 +83,18 @@ int main()
 	cout << CompanyVector; //delete me when finished testing///////////////////////////////////////
 //start reading in text from trans_file.dat
 	infile.open("trans_file.dat"); //opens a new file this time
+	char TransCommand;
 	while (!infile.eof())
 	{
-		char TransCommand;
 		string Trans1st;
 		string Trans2nd;
-		infile >> TransCommand >> Trans1st >> Trans2nd;
-		cout << TransCommand << " " << Trans1st << " " << Trans2nd << endl; //delete me when finished testing///////////////////////////////////////
+		infile >> TransCommand;
 		switch (TransCommand) 
 		{
 		case 'J': //JOIN J <Person> <Company>
 		{
+			infile >> Trans1st >> Trans2nd;
+			cout << Trans1st<< " is joining " << Trans2nd << endl;
 			Company c = FindCompany(CompanyVector, Trans2nd);//find the labeled company (Trans2nd)
 			Employee e = FindEmployee(EmployeeVector, Trans1st);//find/create the employee (Trans1st)
 			c.Employees.push_back(e); //add employee to new company
@@ -106,18 +107,23 @@ int main()
 		}//end CASE J
 		case 'Q': //QUIT Q <Person>
 		{
-			//putback Trans2nd
+			infile >> Trans1st;
+			cout << Trans1st << " has quit their job." << endl;
 //remove employee from company list
 			Employee e = FindEmployee(EmployeeVector, Trans1st);
 			for (unsigned i=0;i<CompanyVector.size();++i)
-			{for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
-				{if (l->EmployeeName == Trans1st)
-				{
-					l->LastCompany = CompanyVector[i].getCompanyName();
-					RemoveEmployeeFromList(CompanyVector[i].Employees, Trans1st);
-				}
+			{
 				for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
-				{if (l->CompanyRank >= e.CompanyRank)
+				{
+					if (l->EmployeeName == Trans1st)
+					{
+						Employee e = FindEmployee(EmployeeVector,Trans1st);
+						e.LastCompany = CompanyVector[i].getCompanyName();
+//						l->LastCompany = CompanyVector[i].getCompanyName();
+						RemoveEmployeeFromList(CompanyVector[i].Employees, Trans1st);
+					}//end if
+				for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
+				{if (l->CompanyRank >= e.CompanyRank) //reduce the rank of everyone above the quitter by 1
 				{l->CompanyRank -= 1;}//end if
 				}//end for
 				}//end for
@@ -127,6 +133,8 @@ int main()
 		}//end case Q
 		case 'C': //CHANGE C <Person> <Company>
 		{
+			infile >> Trans1st >> Trans2nd;
+			cout << Trans1st << " is changing companies to " << Trans2nd << endl;
 //C is essentially a combination of Q followed by J, but without the Unemployment inbetween.
 //Employee quits his old job
 			Employee e = FindEmployee(EmployeeVector, Trans1st);
@@ -153,7 +161,7 @@ int main()
 		} //end case C
 		case 'S': //SALARY IS PAID
 		{
-			//putback Trans1st Trans2nd
+			cout << "Paying salaries..." << endl;
 			for (unsigned i=0;i<CompanyVector.size();++i) //For each company in company vector
 			{
 				for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
@@ -170,7 +178,7 @@ int main()
 		}//end case S
 		case 'E': //EMPLOYEES E <Company>
 		{
-			//putback Trans2nd
+			infile >> Trans1st;
 			cout << "Employee list for " << Trans1st << endl; //prints a header with the company name (Trans1st)
 			for (list<Employee>::iterator l = Unemployed.begin();l!=Unemployed.end();++l)
 			{
@@ -183,8 +191,7 @@ int main()
 		}//end case E
 		case 'U': //UNEMPLOYED LIST
 		{
-			//putback Trans1st Trans2nd
-			cout << "Currently Unemployment list" << endl;
+			cout << "Current Unemployment list" << endl;
 			for (list<Employee>::iterator l = Unemployed.begin();l!=Unemployed.end();++l)
 			{
 				cout << l->EmployeeName << " was last employed at " << l->LastCompany << endl;
@@ -193,7 +200,6 @@ int main()
 		}//end case U
 		case 'D': //DUMP
 		{
-			//putback Trans1st Trans2nd
 			cout << "Current list of active employees for each company." << endl;
 			//a copy of the information in E basically goes here 
 			cout << "Currently Unemployment list" << endl;
@@ -205,7 +211,6 @@ int main()
 		}//end case D
 		case 'F': //FINISH 
 		{
-			//putback Trans1st Trans2nd
 			//"prints the message "End of Program"
 			cout << endl << "END OF PROGRAM";
 			break;
