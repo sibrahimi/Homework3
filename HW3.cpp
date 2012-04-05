@@ -219,6 +219,3 @@ int main()
 //	fout.close();
 	keep_window_open();
 }//end main
-/*
-        print all employees
-*/
