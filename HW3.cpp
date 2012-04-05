@@ -6,6 +6,7 @@
 using namespace std;
 Company::Company(string NewCompanyName):CompanyName(NewCompanyName){}; //constructor
 void Company::setCompanyName(string NewCompanyName)	{CompanyName = NewCompanyName;} //setter
+void Company::setTotalSalariesPaid(int Payday) {TotalSalariesPaid += Payday;} //setter
 ostream& operator << (ostream& out, const vector<Company>& vec)
 {
 	for (unsigned i=0;i<vec.size();i++)
@@ -87,8 +88,8 @@ int main()
 		char TransCommand;
 		string Trans1st;
 		string Trans2nd;
-		infile >> TransCommand >> Trans1st >> Trans2nd; //read in the Command, Employee, CompanyName
-		cout << TransCommand << " " << Trans1st << " " << Trans2nd << endl;
+		infile >> TransCommand >> Trans1st >> Trans2nd;
+		cout << TransCommand << " " << Trans1st << " " << Trans2nd << endl; //delete me when finished testing///////////////////////////////////////
 		switch (TransCommand) 
 		{
 		case 'J': //JOIN J <Person> <Company>
@@ -97,6 +98,7 @@ int main()
 			Employee e = FindEmployee(EmployeeVector, Trans1st);//find/create the employee (Trans1st)
 			c.Employees.push_back(e); //add employee to new company
 			RemoveEmployeeFromList(Unemployed,Trans1st); //if employee with name Trans1st exists in unemployed list, removes them
+			e.LastCompany = ""; //should ONLY be set if they are unemployed
 			e.CompanyRank = 0; //Reset to 0, next for loop will increase this to the proper 1 while also increasing everyone above.
 			for (list<Employee>::iterator l = c.Employees.begin();l!=c.Employees.end();++l)
 			{l->CompanyRank += 1;}//end for
@@ -106,39 +108,74 @@ int main()
 		{
 			//putback Trans2nd
 //remove employee from company list
-			for (unsigned i=0;i<CompanyVector.size();++i)
-			{RemoveEmployeeFromList(CompanyVector[i].Employees, Trans1st);}//end for
-		//No 2 employees have the same name. If the employee doesn't exist in this company's list, no harm done.
-		//Probably not the most precise way to do this, especially once you start having employees with the same name
-		//who work for different companies, but it will suffice for now.
 			Employee e = FindEmployee(EmployeeVector, Trans1st);
+			for (unsigned i=0;i<CompanyVector.size();++i)
+			{for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
+				{if (l->EmployeeName == Trans1st)
+				{
+					l->LastCompany = CompanyVector[i].getCompanyName();
+					RemoveEmployeeFromList(CompanyVector[i].Employees, Trans1st);
+				}
+				for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
+				{if (l->CompanyRank >= e.CompanyRank)
+				{l->CompanyRank -= 1;}//end if
+				}//end for
+				}//end for
+			}//end for
 			Unemployed.push_back(e); //add employee to unemployed list
 			break;
 		}//end case Q
 		case 'C': //CHANGE C <Person> <Company>
 		{
-			//add employee to new company
-			//figure out where that employee was already employed
-			//set Employee.LastCompany
-			//delete employee from old company
+//C is essentially a combination of Q followed by J, but without the Unemployment inbetween.
+//Employee quits his old job
+			Employee e = FindEmployee(EmployeeVector, Trans1st);
+			for (unsigned i=0;i<CompanyVector.size();++i)
+			{for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
+				{if (l->EmployeeName == Trans1st)
+				{
+					l->LastCompany = CompanyVector[i].getCompanyName();
+					RemoveEmployeeFromList(CompanyVector[i].Employees, Trans1st);
+				}
+				for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
+				{if (l->CompanyRank >= e.CompanyRank)
+				{l->CompanyRank -= 1;}//end if
+				}//end for
+				}//end for
+			}//end for
+//Employee Starts his new job
+			Company c = FindCompany(CompanyVector, Trans2nd);//find the labeled company (Trans2nd)
+			c.Employees.push_back(e); //add employee to new company
+			e.CompanyRank = 0; //Reset to 0, next for loop will increase this to the proper 1 while also increasing everyone above.
+			for (list<Employee>::iterator l = c.Employees.begin();l!=c.Employees.end();++l)
+			{l->CompanyRank += 1;}//end for
 			break;
+		} //end case C
 		case 'S': //SALARY IS PAID
-//			for (unsigned i=0;i<Trans2nd.size();++i) {cout << i; infile.putback(i);}
+		{
 			//putback Trans1st Trans2nd
-			//For each company in company vector,
-			//for each employee in Company.Employees,
-			//increase Employee.TotalSalary by Rank*$1000
-//Pay $50 to everyone on Unemployed list
+			for (unsigned i=0;i<CompanyVector.size();++i) //For each company in company vector
+			{
+				for (list<Employee>::iterator l = CompanyVector[i].Employees.begin();l!=CompanyVector[i].Employees.end();++l)
+				{
+					l->TotalSalary += l->CompanyRank*1000; //increase Employee.TotalSalary by CompanyRank*$1000
+					CompanyVector[i].setTotalSalariesPaid(l->CompanyRank*1000); //increase Company.TotalSalariesPaid by Employee.CompanyRank*$1000
+				}//end for 
+			}//end for
 			for (list<Employee>::iterator l = Unemployed.begin();l!=Unemployed.end();++l)
 			{
-				l->TotalSalary += 50;
+				l->TotalSalary += 50;//Pay $50 to everyone on Unemployed list
 			}
 			break;
-		}//end case C
+		}//end case S
 		case 'E': //EMPLOYEES E <Company>
 		{
 			//putback Trans2nd
-			//prints a header with the company name (Trans1st),
+			cout << "Employee list for " << Trans1st << endl; //prints a header with the company name (Trans1st)
+			for (list<Employee>::iterator l = Unemployed.begin();l!=Unemployed.end();++l)
+			{
+				cout << l->CompanyRank << ": " << l->EmployeeName << " currently makes " << l->CompanyRank*1000 << " with a total earned of " << l->TotalSalary << endl;
+			}//end for
 			//then the current list of employees for the specified <Company>.
 			//The employees must be printed in order of rank; either top to bottom or bottom to top is appropriate.
 			//Also print the employee's current salary and salary-to-date.
@@ -147,14 +184,23 @@ int main()
 		case 'U': //UNEMPLOYED LIST
 		{
 			//putback Trans1st Trans2nd
-			//the list of unemployed people should be printed.
-			//Include the name of the last company the unemployed person worked for.
+			cout << "Currently Unemployment list" << endl;
+			for (list<Employee>::iterator l = Unemployed.begin();l!=Unemployed.end();++l)
+			{
+				cout << l->EmployeeName << " was last employed at " << l->LastCompany << endl;
+			}//end for
 			break;
 		}//end case U
 		case 'D': //DUMP
 		{
 			//putback Trans1st Trans2nd
-			//Header, then E, then Header, then U
+			cout << "Current list of active employees for each company." << endl;
+			//a copy of the information in E basically goes here 
+			cout << "Currently Unemployment list" << endl;
+			for (list<Employee>::iterator l = Unemployed.begin();l!=Unemployed.end();++l)
+			{
+				cout << l->EmployeeName << " was last employed at " << l->LastCompany << endl;
+			}//end for
 			break;
 		}//end case D
 		case 'F': //FINISH 
@@ -174,12 +220,5 @@ int main()
 	keep_window_open();
 }//end main
 /*
-PROGRAM REQUIREMENTS
-Your program must define the following classes:
-    A company class
-    Minimal Operations:
-        calculate the employees' salary
-        pay the salaries of the employees
         print all employees
-    You should determine how to implement the unemployed persons list.
 */

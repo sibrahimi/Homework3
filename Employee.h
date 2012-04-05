@@ -7,6 +7,6 @@ struct Employee
 {
 	string EmployeeName;
 	int TotalSalary;
-	string LastCompany;
+	string LastCompany; //should ONLY be set if they are unemployed
 	int CompanyRank;
 };//end struct Employee
