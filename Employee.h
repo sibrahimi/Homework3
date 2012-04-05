@@ -6,7 +6,7 @@ using namespace std;
 struct Employee
 {
 	string EmployeeName;
-	double TotalSalary;
-	string CurrentCompany;
+	int TotalSalary;
 	string LastCompany;
+	int CompanyRank;
 };//end struct Employee

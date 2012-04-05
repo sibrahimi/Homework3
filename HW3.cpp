@@ -5,10 +5,8 @@
 #include <iterator>
 using namespace std;
 Company::Company(string NewCompanyName):CompanyName(NewCompanyName){}; //constructor
-void Company::setCompanyName(string NewCompanyName)
-	{CompanyName = NewCompanyName;} //setter
-void Company::setNewEmployee(Employee NewEmployee)
-	{getEmployees().push_back(NewEmployee);} //setter
+void Company::setCompanyName(string NewCompanyName)	{CompanyName = NewCompanyName;} //setter
+void Company::setNewEmployee(Employee NewEmployee)	{getEmployees().push_back(NewEmployee);} //setter
 ostream& operator << (ostream& out, const vector<Company>& vec)
 {
 	for (unsigned i=0;i<vec.size();i++)
@@ -25,6 +23,11 @@ ostream& operator << (ostream& out, list<Employee>& lst)
 	}//end for
 	return out;
 }//end overload << list<Employee>
+ostream& operator << (ostream& out, Employee& emp)
+{
+	out << emp.EmployeeName << emp.TotalSalary << emp.CompanyRank << emp.LastCompany << endl;
+	return out;
+}
 int main()
 {
 	list<Employee> Unemployed;
@@ -43,26 +46,27 @@ int main()
 	infile.close();
 	cout << CompanyVector;
 //start reading in text from trans_file.dat
-//	ifstream infile; //not needed, "infile" still exists.
-	infile.open("trans_file.dat");
+	infile.open("trans_file.dat"); //opens a new file this time
 	while (!infile.eof())
 	{
 		char TransCommand;
-		string TransEmployee;
-		string TransCompany;
-		infile >> TransCommand >> TransEmployee >> TransCompany; //read in the Command, Employee, CompanyName
+		string Trans1st;
+		string Trans2nd;
+		infile >> TransCommand >> Trans1st >> Trans2nd; //read in the Command, Employee, CompanyName
+		cout << TransCommand << " " << Trans1st << " " << Trans2nd << endl;
 		switch (TransCommand) 
 		{
 		case 'J': //JOIN J <Person> <Company>
-		//search for whether or not the employee object already exists
+		//find the labeled company (Trans2nd)
+		//search for whether or not the employee (Trans1st) already exists
 		//add employee to new company
 			for (unsigned i=0;i<CompanyVector.size();++i)
 			{
-				if (CompanyVector[i].getCompanyName() == TransCompany)
+				if (CompanyVector[i].getCompanyName() == Trans2nd)
 				{ //Found the correct Company object to enroll the Employee
 					for (unsigned j=0;j<EmployeeVector.size();++j)
 					{
-						if (EmployeeVector[j].EmployeeName == TransEmployee)
+						if (EmployeeVector[j].EmployeeName == Trans1st)
 						{ //if the employee already exists, must currently be unemployed, else "C" for CHANGE would be used
 							CompanyVector[i].setNewEmployee(EmployeeVector[j]); //add the employee to the company payroll
 //TODO: FIND THE EMPLOYEE IN THE UNEMPLOYED LIST AND REMOVE THEM!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -70,7 +74,7 @@ int main()
 						else //if the employee object doesn't currently exist, it needs to be created and then added.
 						{
 							Employee temp; //creates new employee object
-							temp.EmployeeName = TransEmployee; //sets their name
+							temp.EmployeeName = Trans1st; //sets their name
 							EmployeeVector.push_back(temp); //adds employee to the EmployeeVector
 							CompanyVector[j].setNewEmployee(temp); //add the new employee object to the company payroll
 						}//end else
@@ -92,7 +96,12 @@ int main()
 			//For each company in company vector,
 			//for each employee in Company.Employees,
 			//increase Employee.TotalSalary by Rank*$1000
-			//Pay $50 to everyone on Unemployed list
+			/*Pay $50 to everyone on Unemployed list
+			for (list<Employee>::iterator l = Unemployed.begin();l!=Unemployed.end();++l)
+			{
+				*l.TotalSalary += 50;
+			}
+			*/
 			break;
 		case 'E': //EMPLOYEES E <Company>
 			//prints a header with the company name,
@@ -104,9 +113,11 @@ int main()
 			//the list of unemployed people should be printed.
 			//Include the name of the last company the unemployed person worked for.
 			break;
-		case 'D': //DUMP Header, then E, then Header, then U
+		case 'D': //DUMP 
+			//Header, then E, then Header, then U
 			break;
-		case 'F': //FINISH "prints the message "End of Program"
+		case 'F': //FINISH 
+		//"prints the message "End of Program"
 			break;
 		}//end switch Command
 	}//end while
