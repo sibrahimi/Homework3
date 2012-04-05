@@ -7,14 +7,11 @@ class Company
 {
 private:
 	string CompanyName;
-	list<Employee> Employees;
 public:
+	list<Employee> Employees;
 	Company(string NewCompanyName); //default constructor
 	string getCompanyName() const {return CompanyName;} //getter
-	list<Employee> getEmployees() {return Employees;} //getter
 void setCompanyName(string NewCompanyName); //setter
-void setNewEmployee(Employee NewEmployee); //setter
-void removeEmployee(Employee ToBeRemoved); //remover
 }; //end class Company------------------------------------------------
 ostream& operator << (ostream& out, const Company& cmp);
 ostream& operator << (ostream& out, Employee& emp);
